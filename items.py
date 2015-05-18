@@ -16,3 +16,9 @@ class Knife(Item):
     def __str__(self):
         return "knife"
 
+class Key(Item):
+    def glyph(self):
+        return ('$', Colors.YELLOW)
+    
+    def __str__(self):
+        return "key"
