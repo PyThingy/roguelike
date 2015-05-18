@@ -172,6 +172,7 @@ class Game:
             action = self.action()
             if action:
                 message, color = action.perform()
+                #print(message, color) # trzeba by wypisywac do pliku, tj. robic log
                 self.message(message, color)
 
 
