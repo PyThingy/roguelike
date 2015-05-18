@@ -1,6 +1,7 @@
 
 import items
 from colors import Colors
+from actions import ActionException
 
 
 class Tile:
@@ -22,6 +23,12 @@ class Floor(Tile):
 
     def glyph(self):
         return self.item.glyph() if self.item else ('.', Colors.DARK_GRAY)
+
+
+class KeyFloor(Floor):
+    def __init__(self,y,x):
+        super().__init__(y,x)
+        self.item = items.Key()
 
 
 class Wall(Tile):
@@ -65,18 +72,52 @@ class Door(Tile):
     def __str__(self):
         return "door"
 
+    def use(self, item):
+        if isinstance(item, items.Knife):
+            return "you stab at the door, leaving a mark"
+
+
+class KeyDoor(Door):
+    LOCKED = 3
+    glyphs = {
+        1: '/',
+        2: '+',
+        3: '|',
+    }
+
+    def __init__(self, y, x):
+        super().__init__(y, x)
+        self.state = KeyDoor.LOCKED
+
+    def glyph(self):
+        return (self.glyphs[self.state], Colors.DARK_RED)
+
+    def open(self):
+        if self.state == KeyDoor.LOCKED:
+            raise ActionException("the door is locked")
+        super().open()
 
     def use(self, item):
-        if isinstance(item, Knife):
+        if isinstance(item, items.Knife):
             return "you stab at the door, leaving a mark"
+        if isinstance(item, items.Key):
+            if self.state == KeyDoor.LOCKED:
+                self.state = KeyDoor.CLOSED
+                return "You have unlocked the door"
+            elif self.state == KeyDoor.CLOSED:
+                self.state = KeyDoor.LOCKED
+                return "You have locked the door"
+            else:
+                raise ActionException("Close the door, please.")
+
 
 class TileFactory:
     TILES = {
         '.': Floor,
         '#': Wall,
         '+': Door,
-        '1': Floor,
-        '2': Floor,
+        '1': KeyDoor,
+        '2': KeyFloor,
     }
 
     @staticmethod
