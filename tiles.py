@@ -68,7 +68,7 @@ class Door(Tile):
 
 
     def use(self, item):
-        if isinstance(item, Knife):
+        if isinstance(item, items.Knife):
             return "you stab at the door, leaving a mark"
 
 class TileFactory:
