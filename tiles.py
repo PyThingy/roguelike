@@ -64,7 +64,7 @@ class Wall(Tile):
     def __str__(self):
         return "wall"
 
-# new comment
+
 class Door(Tile):
     OPEN = 1
     CLOSED = 2
@@ -100,6 +100,7 @@ class Door(Tile):
             return "you stab at the door, leaving a mark"
 
 
+
 class KeyDoor(Door):
     LOCKED = 3
     glyphs = {
@@ -132,6 +133,10 @@ class KeyDoor(Door):
         
         super().use(item)
 
+
+
+# new comment
+# new comment
 
 class TileFactory:
     TILES = {
