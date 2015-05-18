@@ -35,7 +35,7 @@ class Wall(Tile):
     def __str__(self):
         return "wall"
 
-# new comment
+
 class Door(Tile):
     OPEN = 1
     CLOSED = 2
@@ -71,6 +71,8 @@ class Door(Tile):
         if isinstance(item, items.Knife):
             return "you stab at the door, leaving a mark"
 
+# new comment
+# new comment
 class TileFactory:
     TILES = {
         '.': Floor,
