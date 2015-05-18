@@ -24,7 +24,7 @@ class Floor(Tile):
     def glyph(self):
         return self.item.glyph() if self.item else ('.', Colors.DARK_GRAY)
 
-
+# new comment
 class Wall(Tile):
     def passable(self):
         return False
@@ -35,7 +35,7 @@ class Wall(Tile):
     def __str__(self):
         return "wall"
 
-
+# new comment
 class Door(Tile):
     OPEN = 1
     CLOSED = 2
