@@ -24,6 +24,7 @@ class Floor(Tile):
     def glyph(self):
         return self.item.glyph() if self.item else ('.', Colors.DARK_GRAY)
 
+
 class KeyFloor(Floor):
     def __init__(self, y, x):
         super().__init__(y,x)
@@ -53,6 +54,8 @@ class Teleport(Tile):
     def open(self):
         return "you used the teleport"
 
+
+# new comment
 class Door(Tile):
     OPEN = 1
     CLOSED = 2
