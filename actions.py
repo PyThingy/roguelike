@@ -72,6 +72,20 @@ class Open(Action):
             return ("There's nothing to open",
                     Colors.DARK_RED)
 
+class OpenTeleport(Open):
+    def perform(self):
+        try:
+            self.player.open(self.tile)
+            self.player.x = 100
+            self.player.y = 100
+            return ("You open the %s" % self.tile,
+                    Colors.LIGHT_GRAY)
+        except ActionException as ex:
+            return ("You can't open the %s: %s" % (self.tile, ex),
+                    Colors.DARK_RED)
+        except Exception as ex:
+            return ("There's nothing to open",
+                    Colors.DARK_RED)
 
 class Close(Action):
     def perform(self):

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-
+import logging
 import curses
 import actions
 from tiles import TileFactory
 from colors import Colors
+from random import randint
 
 
 class Map:
@@ -122,6 +123,8 @@ class Game:
 
             y, x = self._get_direction("Open what")
             if y and x:
+                if str(self.map.tiles[y][x]) == 'teleport':
+                    return actions.Move(self.player, self.map.tiles[y+randint(1,20)][x+randint(1,70)])
                 return actions.Open(self.player, self.map.tiles[y][x])
 
         # close
