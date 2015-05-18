@@ -2,7 +2,7 @@
 # patrzenie na sciany
 # spacerujace kozy :D
 # pijane kozy
-# i cokolwiek tylko wymyœlimy
+# i cokolwiek tylko wymyï¿½limy
 # (zachowajmy to dla siebie, bedziemy mergowac razem za tydzien)
 
 import items
@@ -48,6 +48,12 @@ class KnifeFloor(Floor):
         self.item = items.Knife()
 
 
+class KeyFloor(Floor):
+    def __init__(self,y,x):
+        super().__init__(y,x)
+        self.item = items.Key()
+
+
 class Wall(Tile):
     def passable(self):
         return False
@@ -89,46 +95,42 @@ class Door(Tile):
     def __str__(self):
         return "door"
 
-
     def use(self, item):
         if isinstance(item, items.Knife):
             return "you stab at the door, leaving a mark"
-        
 
-            
+
 class KeyDoor(Door):
     LOCKED = 3
-    
+    glyphs = {
+        1: '/',
+        2: '+',
+        3: '|',
+    }
+
     def __init__(self, y, x):
         super().__init__(y, x)
-        self.item = False
         self.state = KeyDoor.LOCKED
-    
+
     def glyph(self):
-        return ('/' if self.passable() else '8', Colors.DARK_RED)
-    
+        return (self.glyphs[self.state], Colors.DARK_RED)
+
     def open(self):
-        # if self.state == Door.CLOSED:
-            # self.state = Door.OPEN
-        # elif self.state == Door.OPEN:
-            # raise ActionException("this door is already open")
         if self.state == KeyDoor.LOCKED:
             raise ActionException("this door is locked")
-        super().open()  # w pozostalych wypadkach zachowa sie jak Door
-        #    
-    
+        super().open()
+
     def use(self, item):
         if isinstance(item, items.Key) and self.state == KeyDoor.LOCKED:
-            self.state = Door.CLOSED
-            return "you unlocked the door"
-        if isinstance(item, items.Key) and self.state != KeyDoor.LOCKED:
+            self.state = KeyDoor.CLOSED
+            return "you have unlocked the door"
+        if isinstance(item, items.Key) and self.state == KeyDoor.CLOSED:
             self.state = KeyDoor.LOCKED
-            return "you locked the door"
-        #else:
-            #raise ActionException("this door is already unlocked")
+            return "you have locked the door"
+        else:
+            raise ActionException("Close the door, please.")
         
         super().use(item)
-        
 
 
 class TileFactory:
@@ -145,4 +147,3 @@ class TileFactory:
     def make_tile(character, y, x):
         klass = TileFactory.TILES[character]
         return klass(y, x)
-
