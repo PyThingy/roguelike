@@ -68,7 +68,7 @@ class Open(Action):
         except ActionException as ex:
             return ("You can't open the %s: %s" % (self.tile, ex),
                     Colors.DARK_RED)
-        except Exception as ex:
+        except AttributeError as ex:
             return ("There's nothing to open",
                     Colors.DARK_RED)
 
