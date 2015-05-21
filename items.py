@@ -23,3 +23,19 @@ class Key(Item):
 
     def __str__(self):
         return "key"
+
+class Pickaxe(Item):
+    def __init__(self):
+        self.usage = 3
+
+    def glyph(self):
+        return ('P', Colors.DARK_GRAY)
+
+    def pickaxe_used(self):
+        self.usage -= 1
+
+    def get_pickaxe_usage(self):
+        return self.usage
+
+    def __str__(self):
+        return "pickaxe (%s)" % self.usage

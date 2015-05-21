@@ -35,13 +35,12 @@ class Floor(Tile):
         return self.item.glyph() if self.item else ('.', Colors.DARK_GRAY)
 
 
-
 class KeyFloor(Floor):
     def __init__(self, y, x):
         super().__init__(y,x)
         self.item = Key()
 
-# new comment
+
 class KnifeFloor(Floor):
     def __init__(self, y, x):
         self.y = y
@@ -50,14 +49,30 @@ class KnifeFloor(Floor):
 
 
 class Wall(Tile):
+    def __init__(self,y,x):
+        self.y = y
+        self.x = x
+        self.destroyed = False
+
     def passable(self):
-        return False
+        if self.destroyed:
+            return True
+        else:
+            return False
 
     def glyph(self):
-        return ('#', Colors.WHITE)
+        return ('#', Colors.DARK_GRAY) if self.destroyed else ('#', Colors.WHITE)
 
     def __str__(self):
         return "wall"
+
+    def use(self, item):
+        if isinstance(item, items.Pickaxe) and item.get_pickaxe_usage() > 0:
+            self.destroyed = True
+            item.pickaxe_used()
+            return "you have destroyed the wall, %s" % item
+        else:
+            raise ActionException("You can not use %s here" % item)
 
 
 class Teleport(Tile):
@@ -74,7 +89,6 @@ class Teleport(Tile):
         return "you used the teleport"
 
 
-# new comment
 class Door(Tile):
     OPEN = 1
     CLOSED = 2
@@ -143,8 +157,13 @@ class KeyDoor(Door):
         super().use(item)
 
 
+class PickaxeFloor(Floor):
+    def __init__(self, y, x):
+        self.y = y
+        self.x = x
+        self.item = items.Pickaxe()
 
-# new comment
+
 class TileFactory:
     TILES = {
         '.': Floor,
@@ -153,7 +172,8 @@ class TileFactory:
         '1': KeyDoor,
         '2': KeyFloor,
         '3': Teleport,
-        '(': KnifeFloor
+        '(': KnifeFloor,
+        'P': PickaxeFloor,
     }
 
     @staticmethod
