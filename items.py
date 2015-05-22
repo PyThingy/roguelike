@@ -29,7 +29,7 @@ class Pickaxe(Item):
         self.usage = 3
 
     def glyph(self):
-        return ('P', Colors.DARK_GRAY)
+        return ('P', Colors.DARK_GRAY) if self.usage < 1 else ('P', Colors.BROWN)
 
     def pickaxe_used(self):
         self.usage -= 1
