@@ -97,12 +97,13 @@ class Door(Tile):
         super().__init__(y, x)
         self.item = False
         self.state = Door.CLOSED
+        self.destroyed = False
 
     def passable(self):
-        return self.state == Door.OPEN
+        return True if self.destroyed or self.state == Door.OPEN else False
 
     def glyph(self):
-        return ('/' if self.passable() else '+', Colors.BROWN)
+        return (';', Colors.DARK_GRAY) if self.destroyed else ('/' if self.passable() else '+', Colors.BROWN)
 
     def open(self):
         if self.state == Door.CLOSED:
@@ -120,8 +121,13 @@ class Door(Tile):
         return "door"
 
     def use(self, item):
-        if isinstance(item, items.Knife):
-            return "you stab at the door, leaving a mark"
+        if not self.destroyed:
+            if isinstance(item, items.Knife):
+                return "you stab at the door, leaving a mark"
+            if isinstance(item, items.Pickaxe) and item.get_pickaxe_usage() > 0:
+                    self.destroyed = True
+                    item.pickaxe_used()
+                    return "you have destroyed the door, %s" % item
 
 
 class KeyDoor(Door):
@@ -135,26 +141,32 @@ class KeyDoor(Door):
     def __init__(self, y, x):
         super().__init__(y, x)
         self.state = KeyDoor.LOCKED
+        self.destroyed = False
 
     def glyph(self):
-        return (self.glyphs[self.state], Colors.DARK_RED)
+        return (';', Colors.DARK_GRAY) if self.destroyed else (self.glyphs[self.state], Colors.DARK_RED)
 
     def open(self):
-        if self.state == KeyDoor.LOCKED:
-            raise ActionException("this door is locked")
-        super().open()
+        if not self.destroyed:
+            if self.state == KeyDoor.LOCKED:
+                raise ActionException("this door is locked")
+            super().open()
 
     def use(self, item):
-        if isinstance(item, items.Key) and self.state == KeyDoor.LOCKED:
-            self.state = KeyDoor.CLOSED
-            return "you have unlocked the door"
-        if isinstance(item, items.Key) and self.state == KeyDoor.CLOSED:
-            self.state = KeyDoor.LOCKED
-            return "you have locked the door"
-        else:
-            raise ActionException("Close the door, please.")
-
-        super().use(item)
+        if not self.destroyed:
+            if isinstance(item, items.Pickaxe) and item.get_pickaxe_usage() > 0:
+                self.destroyed = True
+                item.pickaxe_used()
+                return "you have destroyed the door, %s" % item
+            if isinstance(item, items.Key) and self.state == KeyDoor.LOCKED:
+                self.state = KeyDoor.CLOSED
+                return "you have unlocked the door"
+            if isinstance(item, items.Key) and self.state == KeyDoor.CLOSED:
+                self.state = KeyDoor.LOCKED
+                return "you have locked the door"
+            else:
+                raise ActionException("Close the door, please.")
+            super().use(item)
 
 
 class PickaxeFloor(Floor):
