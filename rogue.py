@@ -12,7 +12,6 @@ class Map:
     def __init__(self, filename):
         with open(filename) as f:
             self.tiles = []
-
             for y, r in enumerate(f):
                 row = []
                 for x, c in enumerate(r.strip()):
@@ -26,11 +25,27 @@ class Map:
                 screen.addstr(y, x, character, color_pair)
 
 
+class Panel:
+    def __init__(self, some_player):
+        self.player = some_player
+
+    def show(self, screen):
+        screen.addstr(0, 54, "lives: {0:<3}"\
+        .format(str(self.player.get_life())),\
+         Colors.GREEN if self.player.get_life() > 1 else Colors.RED)
+        screen.addstr(0, 64, "health: {0:<4}".format(str(self.player.get_health())) ,Colors.GREEN if self.player.get_health() > 10 else Colors.RED)
+
+
 class Player:
-    def __init__(self, y, x):
+    MAX_HEALTH = 100
+    MAX_LIFE = 3
+
+    def __init__(self, y, x, health = MAX_HEALTH, life = MAX_LIFE):
         self.y = y
         self.x = x
         self.items = []
+        self.__health = health
+        self.__life = life
 
     def show(self, screen):
         character, color_pair = self.glyph()
@@ -49,10 +64,8 @@ class Player:
     def drop(self, tile, item):
         if item is None:
             raise actions.ActionException("you don't have such an item")
-
         if tile.item is not None:
             raise actions.ActionException("there's no space on the floor")
-
         tile.item = item
         self.items.remove(item)
         return tile.item
@@ -60,7 +73,6 @@ class Player:
     def pickup(self, tile):
         if not tile.item:
             raise actions.ActionException("there's nothing here")
-
         self.items.append(tile.item)
         tile.item = None
         return self.items[-1]
@@ -74,6 +86,42 @@ class Player:
     def use(self, tile, item):
         return tile.use(item)
 
+    def get_health(self):
+        return self.__health
+
+    def get_life(self):
+        return self.__life
+
+    def decrease_health(self, health_points, max_health = MAX_HEALTH):
+        if self.__health - health_points > 0:
+            self.__health -= health_points
+        else:
+            life_to_subtract = 1 + ((health_points - self.__health) // max_health)
+            health_to_subtract = (health_points - self.__health) % max_health
+            self.decrease_life(life_to_subtract)
+            if self.__life > 0:
+                self.__health = max_health -health_to_subtract
+            else:
+                self.__health = 0
+
+    def increase_health(self, health_points, max_health = MAX_HEALTH):
+        if self.__health + health_points < max_health:
+            if self.__life > 0:
+                self.__health += health_points
+        else:
+            self.__health = max_health
+
+    def decrease_life(self, life_points):
+        if self.__life - life_points > 0:
+            self.__life -= life_points
+        else:
+            self.__life = 0
+
+    def increase_life(self, life_points, max_life = MAX_LIFE):
+        if self.__life + life_points < max_life:
+            self.__life += life_points
+        else:
+            self.__life = max_life
 
 class Game:
     DIRECTIONS = [
@@ -85,9 +133,11 @@ class Game:
 
     def __init__(self, screen, map):
         self.screen = screen
-        self.status = curses.newwin(1, 80, 25, 0)
+        self.status = curses.newwin(1, 80, 26, 0)
         self.map = Map(map)
-        self.player = Player(1, 1)
+        self.player = Player(2, 1)
+        self.panel = Panel(self.player)
+
 
     def _get_direction(self, message=None, pressed=None):
         if message:
@@ -120,7 +170,6 @@ class Game:
 
         # open
         if pressed == ord('o'):
-
             y, x = self._get_direction("Open what")
             if y and x:
                 if str(self.map.tiles[y][x]) == 'teleport':
@@ -152,6 +201,13 @@ class Game:
                 if y and x:
                     return actions.Use(self.player, self.map.tiles[y][x], item)
 
+        # health test - remove it
+        if pressed == ord('x'):
+            self.player.decrease_health(5)
+        if pressed == ord('z'):
+            self.player.increase_health(20)
+
+        # options
         if pressed == ord('?'):
             return actions.Wait("<arrows>: walk, O: open, C: close, P: pick up, D: drop, U: use")
 
@@ -169,10 +225,12 @@ class Game:
 
         while True:
             self.map.show(self.screen)
+            self.panel.show(self.screen)
             self.player.show(self.screen)
             self.screen.refresh()
 
             action = self.action()
+
             if action:
                 message, color = action.perform()
                 #print(message, color) # trzeba by wypisywac do pliku, tj. robic log

@@ -143,7 +143,6 @@ class KeyDoor(Door):
         super().use(item)
 
 
-
 # new comment
 class TileFactory:
     TILES = {
@@ -153,7 +152,7 @@ class TileFactory:
         '1': KeyDoor,
         '2': KeyFloor,
         '3': Teleport,
-        '(': KnifeFloor
+        '(': KnifeFloor,
     }
 
     @staticmethod
