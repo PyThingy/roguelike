@@ -85,7 +85,7 @@ class Game:
 
     def __init__(self, screen, map):
         self.screen = screen
-        self.status = curses.newwin(1, 80, 25, 0)
+        self.status = curses.newwin(1, 80, 26, 0)
         self.map = Map(map)
         self.player = Player(1, 1)
 
