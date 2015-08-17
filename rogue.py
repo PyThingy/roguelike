@@ -5,7 +5,7 @@ import curses
 import actions
 from tiles import TileFactory
 from colors import Colors
-from random import randint
+import random
 
 
 class Map:
@@ -124,7 +124,9 @@ class Game:
             y, x = self._get_direction("Open what")
             if y and x:
                 if str(self.map.tiles[y][x]) == 'teleport':
-                    return actions.Move(self.player, self.map.tiles[y+randint(1,20)][x+randint(1,70)])
+                     random_tile = random.choice(random.choice(
+                         [[inner for inner in tiles if inner.passable()] for tiles in self.map.tiles]))
+                     return actions.Move(self.player, random_tile)
                 return actions.Open(self.player, self.map.tiles[y][x])
 
         # close
